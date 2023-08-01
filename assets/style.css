@@ -85,6 +85,16 @@ h2{
 	font-size: 30px;
 	color: #1D6154
 }
+a{
+	text-decoration: none;
+	color:black;
+}
+a:hover{
+	color: #B1663C;
+}
+#log-in{
+	font-weight: bold;
+}
 nav ul {
 	display: flex;
 	align-items: center;
@@ -201,10 +211,68 @@ input[type="submit"]{
 	width: 180px;
 	text-align: center;
 	border-radius: 60px ;
+	cursor:pointer;
 }
-
+input[type="submit"]:hover{
+	background-color: #0B2621;
+}
+footer{
+	background-color: white;
+}
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
-	margin: 2em
+	padding: 2em;
+	background-color: white;
+}
+
+/*///////Page de connexion//////*/
+#log-in{
+	width:50%;
+	margin:auto;
+}
+#login{
+	font-weight: bold;
+}
+#log-in h2{
+	text-align: center;
+	margin-top: 6em;
+}
+#log-in form{
+	text-align: left;
+	margin-top:30px;
+	display: flex;
+	flex-direction: column;
+}
+#log-in input{
+	height: 50px;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+#log-in label {
+	margin: 2em 0 1em 0;
+}
+
+.forgotpw{
+	text-decoration: underline;
+	display:flex;
+	justify-content: center;
+}
+#errorMessage{
+	color: red; 
+	display: none;
+}
+.fa-triangle-exclamation{
+	padding-right:10px;
+}
+
+.footer-log{
+	position: fixed;
+	bottom: 0; /* on le colle en bas */
+	left: 0;
+	width: 100%;
+}
+.footer-log li{
+	padding-right:5em;
 }

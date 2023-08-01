@@ -72,7 +72,7 @@ async function afficherToutesLesDonnees() {
 
 async function ajouterGestionnairesFiltres() {
   try {
-    const categoriesData = await fetchData("http://localhost:5678/api/categories");
+    const response = await fetchData("http://localhost:5678/api/works");
     const btnAll = document.querySelector(".btnfilall");
     const btnObjets = document.querySelector(".btnfil1");
     const btnAppartements = document.querySelector(".btnfil2");
@@ -88,3 +88,31 @@ async function ajouterGestionnairesFiltres() {
 }
 
 ajouterGestionnairesFiltres();
+
+//Log-in
+
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  let emailInput = document.getElementById("email");
+  let passwordInput = document.getElementById("motdepasse");
+  let email = emailInput.value;
+  let password = passwordInput.value;
+
+  sessionStorage.setItem("userID", "token")
+  const token = sessionStorage.getItem("userID");
+  console.log(token);
+
+  let errorMessage = document.getElementById("errorMessage");
+
+  if (userID===1) {
+    alert("Bienvenue");
+  } else {
+    emailInput.style.border = "1px solid red";
+    passwordInput.style.border = "1px solid red";
+    errorMessage.style.display = "block";
+  }
+});
+
+
+
