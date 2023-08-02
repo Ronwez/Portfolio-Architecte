@@ -90,7 +90,6 @@ async function ajouterGestionnairesFiltres() {
 ajouterGestionnairesFiltres();
 
 //Log-in
-
 document.getElementById("loginForm").addEventListener("submit", function(event) {
   event.preventDefault();
 
@@ -98,21 +97,40 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
   let passwordInput = document.getElementById("motdepasse");
   let email = emailInput.value;
   let password = passwordInput.value;
-
-  sessionStorage.setItem("userID", "token")
-  const token = sessionStorage.getItem("userID");
-  console.log(token);
-
   let errorMessage = document.getElementById("errorMessage");
 
-  if (userID===1) {
-    alert("Bienvenue");
-  } else {
-    emailInput.style.border = "1px solid red";
-    passwordInput.style.border = "1px solid red";
-    errorMessage.style.display = "block";
-  }
+  fetch("http://localhost:5678/api/users/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  })
+  .then(response => {
+    console.log(response)
+    console.log(response.status) 
+    if (response.status === 200) { //200=code serveur pour connecté
+      response = response.json();
+      const token = response.token; 
+      sessionStorage.setItem("token", token);
+      window.location.href = "index.html";
+    } else {
+      emailInput.style.border = "1px solid red";
+      passwordInput.style.border = "1px solid red";
+      errorMessage.style.display = "block";
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  });
 });
+
+
+
+
 
 
 

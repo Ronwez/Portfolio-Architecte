@@ -261,6 +261,7 @@ footer nav ul {
 }
 #errorMessage{
 	color: red; 
+	padding-top:15px;
 	display: none;
 }
 .fa-triangle-exclamation{
