@@ -216,14 +216,22 @@ input[type="submit"]{
 input[type="submit"]:hover{
 	background-color: #0B2621;
 }
+button{
+	cursor:pointer;
+}
 footer{
 	background-color: white;
+	width:100vw;
+	margin-left: calc(-1 * ((100vw - 100%) / 2));
 }
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
-	padding: 2em;
+	padding: 1.5em;
 	background-color: white;
+}
+footer nav li {
+	padding-right:50px;
 }
 
 /*///////Page de connexion//////*/
@@ -277,3 +285,160 @@ footer nav ul {
 .footer-log li{
 	padding-right:5em;
 }
+
+/*//////home page connecté/////*/
+
+.black-bloc{
+	padding: 15px 0 15px 0;
+	text-align: center;
+	background-color: black;
+	width:100vw;
+	margin-left: calc(-1 * ((100vw - 100%) / 2));
+}
+
+
+.modif{
+	cursor: pointer;
+}
+.black-bloc .modif{
+	color:white;
+}
+.modif:hover{
+	color:#B1663C;
+}
+.change{
+	border:none;
+	border-radius: 50px;
+	padding:10px 25px 10px 25px;
+	background-color: white;
+}
+
+figure .modif{
+	margin-left:10%;
+	margin-top: 10px;
+}
+
+.Projets{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap:30px;
+}
+.Projets .modif{
+	margin-bottom:1.5em;
+}
+
+#connected1 {
+	display: none;
+}
+#connected2 {
+	display: none;
+}
+
+#connected3{
+	display:none;
+}
+
+/* The Modal (background) */
+.modal {
+	display: none; 
+	position: fixed; 
+	z-index: 1; 
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%; 
+	overflow: auto;
+	background-color: rgb(0,0,0); 
+	background-color: rgba(0,0,0,0.4); 
+  }
+  
+  /* Modal Content/Box */
+  .modal-content {
+	background-color: #fefefe;
+	margin: 15% auto; 
+	padding: 20px 20px 50px 80px;
+	border: 1px solid #888;
+	width: 50%; 
+  }
+  .modal-content h2{
+	margin-top:50px;
+	padding-bottom:30px;
+	left:-30px;
+	position: relative;
+	font-family:Work Sans;
+	color:black;
+  }
+  hr{
+	border: none;
+  color: #B3B3B3;
+  width:500px;
+  max-width: 100%;
+  height: 0px;
+  border: 1px solid #B3B3B3;
+  margin-top:100px;
+  }
+
+  .modal-input{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	text-align: center;
+	padding-right:40px;
+  }
+  .modal-input input{
+	height: 40px;
+	width:300px;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  }
+  .modal-input a{
+	font-size: large;
+	cursor:pointer;
+  }
+
+  /* The Close Button */
+  .close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+  }
+
+  .image-container {
+	display: flex; /* Affiche les images en ligne */
+	flex-wrap: wrap; /* Permet aux images de passer à la ligne si besoin */
+	gap: 20px; /* Espace entre les images */
+  }
+  
+  .modal-image {
+	width:150px;
+	height: auto;
+  }
+  
+  /* Ajoute une marge à l'icône pour la décaler de l'image */
+	.item {
+	position: relative; /* Permet de positionner l'icône relative à ce conteneur */
+  }
+  
+  .fa-trash-can {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 20px; 
+	color:white;
+	background-color: black;
+	padding: 5px;
+	margin:5px;
+	border-radius: 15%;
+	cursor:pointer;
+  }
+  

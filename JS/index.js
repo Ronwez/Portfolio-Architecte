@@ -1,3 +1,5 @@
+let response = [];
+
 //AFICHER LA GALLERIE
 
 async function afficherDonneesApi() {
@@ -89,48 +91,98 @@ async function ajouterGestionnairesFiltres() {
 
 ajouterGestionnairesFiltres();
 
-//Log-in
-document.getElementById("loginForm").addEventListener("submit", function(event) {
-  event.preventDefault();
 
-  let emailInput = document.getElementById("email");
-  let passwordInput = document.getElementById("motdepasse");
-  let email = emailInput.value;
-  let password = passwordInput.value;
-  let errorMessage = document.getElementById("errorMessage");
 
-  fetch("http://localhost:5678/api/users/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: email,
-      password: password,
-    }),
-  })
-  .then(response => {
-    console.log(response)
-    console.log(response.status) 
-    if (response.status === 200) { //200=code serveur pour connecté
-      response = response.json();
-      const token = response.token; 
-      sessionStorage.setItem("token", token);
-      window.location.href = "index.html";
-    } else {
-      emailInput.style.border = "1px solid red";
-      passwordInput.style.border = "1px solid red";
-      errorMessage.style.display = "block";
-    }
-  })
-  .catch(error => {
-    console.error("Error:", error);
-  });
+//Log-in MAJ home-page
+
+document.addEventListener("DOMContentLoaded", function() {
+  const token = sessionStorage.getItem("token");
+  if (token) {
+    console.log("Token found:", token);
+    const connected1 = document.getElementById("connected1");
+    const connected2 = document.getElementById("connected2");
+    const connected3 = document.getElementById("connected3");
+    const divFiltres = document.querySelector(".filtres");
+    const loginLogoutLink = document.getElementById("loginLogoutLink");
+    connected1.style.display = "block";
+    connected2.style.display = "block";
+    connected3.style.display = "block";
+    divFiltres.style.display = "none";
+    loginLogoutLink.textContent = "logout";
+    const deletedImages = JSON.parse(sessionStorage.getItem("deletedImages") || "[]");
+  }
 });
 
 
+//MODAL
 
+var modal = document.getElementById("myModal");
 
+// ouverture modal
+var btn = document.getElementById("connected3");
 
+// fermeture modal
+var span = document.getElementsByClassName("close")[0];
 
+// affichage modal
+btn.onclick = async function() {
+  modal.style.display = "block";
+
+  try {
+    const Apiworks = await fetch("http://localhost:5678/api/works");
+    response = await Apiworks.json();
+    const imageContainer = document.querySelector(".image-container");
+    imageContainer.innerHTML = ""; // Vide le contenu précédent
+
+    for (let i = 0; i < response.length; i++) {
+      const { imageUrl } = response[i];
+
+      const imageHtml = `
+        <div class="item">
+          <i class="fa-solid fa-trash-can" data-index="${i}"></i>
+          <img class="modal-image" src="${imageUrl}">
+          <figcaption>Éditer</figcaption>
+        </div>
+      `;
+
+      imageContainer.insertAdjacentHTML("beforeend", imageHtml);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+// click fermeture
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// click en dehors = fermeture
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+//suppression d'image
+document.addEventListener("click", function(event) {
+  if (event.target.classList.contains("fa-trash-can")) {
+    const index = event.target.getAttribute("data-index");
+    if (index !== null) {
+      const imageContainers = document.querySelectorAll(".item");
+      const homePageImages = document.querySelectorAll(".gallery .item");
+
+      const deletedImageInfo = {
+        index: index,
+        imageUrl: response[index].imageUrl
+      };
+      const deletedImages = JSON.parse(sessionStorage.getItem("deletedImages") || "[]");
+      deletedImages.push(deletedImageInfo);
+      sessionStorage.setItem("deletedImages", JSON.stringify(deletedImages));
+
+      imageContainers[index].remove();
+      homePageImages[index].remove(); 
+    }
+  }
+});
 

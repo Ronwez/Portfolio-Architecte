@@ -10,15 +10,23 @@
 	<meta name="description" content="">
 	<link rel="stylesheet" href="./assets/style.css">
 	<script src="JS/index.js" defer></script>
+	<script src="https://kit.fontawesome.com/72d072a48e.js" crossorigin="anonymous"></script>
 </head>
 <body>
+	<div id="connected1" class="black-bloc">
+		<a class="modif"><i class="fa-regular fa-pen-to-square"></i> Mode édition </a>
+		<button class="change">
+			publier les changements
+		</button>
+	</div>
 <header>
 	<h1>Sophie Bluel <span>Architecte d'inteérieur</span></h1>
 	<nav>
 		<ul>
 			<li><a href="#projets">projets</a></li>
 			<li><a href="mailto:">contact</a></li>
-			<li><a href="log.html">login</a></li>
+			<li><a href="log.html" id="loginLogoutLink">login</a></li>
+
 			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
@@ -27,6 +35,7 @@
 	<section id="introduction">
 		<figure>
 			<img src="./assets/images/sophie-bluel.png" alt="">
+			<a id="connected2" class="modif"><i class="fa-regular fa-pen-to-square"></i> Modifier </a>
 		</figure>
 		<article>
 			<h2>Designer d'espace</h2>
@@ -36,7 +45,23 @@
 		</article>
 	</section>
 	<section id="portfolio">
-		<h2 id="projets">Mes Projets</h2>
+		<div class="Projets">
+			<h2 id="projets">Mes Projets</h2> 
+			<a id="connected3" class="modif"><i class="fa-regular fa-pen-to-square"></i> Modifier </a>
+		</div>
+			<div id="myModal" class="modal">
+				<div class="modal-content">
+					<span class="close">&times;</span>
+					<h2>Galerie photo</h2>
+					<div class="image-container"></div>
+					<div class="modal-input">
+					<hr>
+					<input type="submit" value="Ajouter une photo">
+					<a class="delete">Supprimer la galerie</a>
+					</div>
+				  </div>
+				</div>
+
 			<div class="filtres">
 				<button class="btnfilall"> Tous</button>
 				<button class="btnfil1"> Objets</button>
