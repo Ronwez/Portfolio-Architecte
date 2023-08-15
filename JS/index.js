@@ -1,5 +1,3 @@
-let response = [];
-
 //AFICHER LA GALLERIE
 
 async function afficherDonneesApi() {
@@ -109,29 +107,26 @@ document.addEventListener("DOMContentLoaded", function() {
     connected3.style.display = "block";
     divFiltres.style.display = "none";
     loginLogoutLink.textContent = "logout";
-    const deletedImages = JSON.parse(sessionStorage.getItem("deletedImages") || "[]");
   }
 });
 
-
 //MODAL
 
-var modal = document.getElementById("myModal");
+var modalGallery = document.getElementById("myModal");
+var firstModal = document.querySelector(".modal-gallery"); // Nouveau nom de la première modal
+var modalAddPicture = document.getElementById("myModal2"); // Sélection de la deuxième modal
 
 // ouverture modal
 var btn = document.getElementById("connected3");
 
-// fermeture modal
-var span = document.getElementsByClassName("close")[0];
-
 // affichage modal
 btn.onclick = async function() {
-  modal.style.display = "block";
+  modalGallery.style.display = "block"; // Utiliser modalGallery pour afficher la modal principale
 
   try {
     const Apiworks = await fetch("http://localhost:5678/api/works");
     response = await Apiworks.json();
-    const imageContainer = document.querySelector(".image-container");
+    const imageContainer = firstModal.querySelector(".image-container"); // Utilisation de firstModal pour cibler la première modal
     imageContainer.innerHTML = ""; // Vide le contenu précédent
 
     for (let i = 0; i < response.length; i++) {
@@ -139,6 +134,7 @@ btn.onclick = async function() {
 
       const imageHtml = `
         <div class="item">
+          <i class="fa-solid fa-up-down-left-right"></i>
           <i class="fa-solid fa-trash-can" data-index="${i}"></i>
           <img class="modal-image" src="${imageUrl}">
           <figcaption>Éditer</figcaption>
@@ -152,37 +148,110 @@ btn.onclick = async function() {
   }
 }
 
-// click fermeture
-span.onclick = function() {
-  modal.style.display = "none";
+// Fermeture des modals
+function closeModal() {
+  modalGallery.style.display = "none";
 }
 
-// click en dehors = fermeture
+// Click sur la croix pour fermer la modal
+var closeBtns = document.querySelectorAll(".modal-content .close");
+closeBtns.forEach(function(closeBtn) {
+  closeBtn.addEventListener("click", closeModal);
+});
+
+// Click en dehors des modals pour fermer
 window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
+  if (event.target === modalGallery) {
+    closeModal();
+  }
+  if (event.target === modalAddPicture) {
+    closeModal();
   }
 }
 
 //suppression d'image
-document.addEventListener("click", function(event) {
+
+document.addEventListener("click", async function(event) {
   if (event.target.classList.contains("fa-trash-can")) {
     const index = event.target.getAttribute("data-index");
     if (index !== null) {
-      const imageContainers = document.querySelectorAll(".item");
-      const homePageImages = document.querySelectorAll(".gallery .item");
+      console.log("Starting deletion process...");
 
-      const deletedImageInfo = {
-        index: index,
-        imageUrl: response[index].imageUrl
-      };
-      const deletedImages = JSON.parse(sessionStorage.getItem("deletedImages") || "[]");
-      deletedImages.push(deletedImageInfo);
-      sessionStorage.setItem("deletedImages", JSON.stringify(deletedImages));
+      const itemIdToDelete = response[index].id;
+      console.log("Item ID to delete:", itemIdToDelete);
 
-      imageContainers[index].remove();
-      homePageImages[index].remove(); 
+      const token = sessionStorage.getItem("token"); // Récupérer le token d'accès
+      console.log("Token:", token);
+
+      const deleteUrl = `http://localhost:5678/api/works/${itemIdToDelete}`;
+      console.log("DELETE URL:", deleteUrl);
+
+      try {
+        const deleteResponse = await fetch(deleteUrl, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}` // Inclure le token d'accès dans l'en-tête
+          }
+        });
+
+        console.log("Delete response:", deleteResponse);
+
+        if (deleteResponse.status === 200) { 
+          const deleteResult = await deleteResponse.json();
+          console.log("Delete result:", deleteResult);
+
+          if (deleteResult.status === "success") {
+            response.splice(index, 1);
+
+            const affichage_image = document.querySelector(".gallery");
+            affichage_image.innerHTML = ""; 
+            afficherImages(response); 
+          } else {
+            console.log("Erreur lors de la suppression côté serveur.");
+          }
+        } else {
+          console.log("Erreur lors de la suppression côté client.");
+        }
+      } catch (err) {
+        console.log("Error:", err);
+      }
     }
   }
 });
+
+
+///modal--add-photo
+document.addEventListener("click", function(event) {
+  if (event.target.classList.contains("add-picture")) {
+    const firstModal = document.querySelector(".modal-content");
+    const secondModal = document.querySelector(".modal-add-picture");
+
+    firstModal.style.display = "none"; 
+    secondModal.style.display = "block"; 
+  }
+});
+
+document.addEventListener("click", function(event) {
+  if (event.target.classList.contains("fa-arrow-left")) {
+    console.log("Arrow left clicked");
+
+    const firstModal = document.querySelector(".modal-gallery");
+    const secondModal = document.querySelector(".modal-add-picture");
+
+    console.log("First modal:", firstModal);
+    console.log("Second modal:", secondModal);
+
+    secondModal.style.display = "none"; 
+    firstModal.style.display = "block"; 
+
+    console.log("First modal display:", firstModal.style.display);
+    console.log("Second modal display:", secondModal.style.display);
+  }
+});
+
+
+
+
+
+
 
