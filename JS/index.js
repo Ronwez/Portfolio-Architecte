@@ -113,53 +113,63 @@ document.addEventListener("DOMContentLoaded", function() {
 //MODAL
 
 var modalGallery = document.getElementById("myModal");
-var firstModal = document.querySelector(".modal-gallery"); // Nouveau nom de la première modal
-var modalAddPicture = document.getElementById("myModal2"); // Sélection de la deuxième modal
+var firstModal = document.querySelector(".modal-gallery");
+var modalAddPicture = document.getElementById("myModal2");
+
+var premierePageHTML = ""; // Variable pour sauvegarder le contenu de la première page
 
 // ouverture modal
 var btn = document.getElementById("connected3");
 
 // affichage modal
 btn.onclick = async function() {
-  modalGallery.style.display = "block"; // Utiliser modalGallery pour afficher la modal principale
+  modalGallery.style.display = "block";
 
-  try {
-    const Apiworks = await fetch("http://localhost:5678/api/works");
-    response = await Apiworks.json();
-    const imageContainer = firstModal.querySelector(".image-container"); // Utilisation de firstModal pour cibler la première modal
-    imageContainer.innerHTML = ""; // Vide le contenu précédent
+  if (premierePageHTML === "") {
+    try {
+      const Apiworks = await fetch("http://localhost:5678/api/works");
+      response = await Apiworks.json();
+      const imageContainer = firstModal.querySelector(".image-container");
+      premierePageHTML = imageContainer.innerHTML; // Sauvegarder le contenu de la première page
+      imageContainer.innerHTML = ""; // Vider le contenu précédent
 
-    for (let i = 0; i < response.length; i++) {
-      const { imageUrl } = response[i];
+      for (let i = 0; i < response.length; i++) {
+        const { imageUrl } = response[i];
 
-      const imageHtml = `
-        <div class="item">
-          <i class="fa-solid fa-up-down-left-right"></i>
-          <i class="fa-solid fa-trash-can" data-index="${i}"></i>
-          <img class="modal-image" src="${imageUrl}">
-          <figcaption>Éditer</figcaption>
-        </div>
-      `;
+        const imageHtml = `
+          <div class="item">
+            <i class="fa-solid fa-up-down-left-right"></i>
+            <i class="fa-solid fa-trash-can" data-index="${i}"></i>
+            <img class="modal-image" src="${imageUrl}">
+            <figcaption>Éditer</figcaption>
+          </div>
+        `;
 
-      imageContainer.insertAdjacentHTML("beforeend", imageHtml);
+        imageContainer.insertAdjacentHTML("beforeend", imageHtml);
+      }
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
+  } else {
+    // Restaurer le contenu de la première page
+    const imageContainer = firstModal.querySelector(".image-container");
+    imageContainer.innerHTML = premierePageHTML;
   }
-}
+};
 
-// Fermeture des modals
+// Restaurer le contenu de la première page lorsque la modal est fermée
 function closeModal() {
   modalGallery.style.display = "none";
+  const imageContainer = firstModal.querySelector(".image-container");
+  imageContainer.innerHTML = premierePageHTML;
 }
 
-// Click sur la croix pour fermer la modal
-var closeBtns = document.querySelectorAll(".modal-content .close");
+// Gérer la fermeture des modals
+var closeBtns = document.querySelectorAll(".close");
 closeBtns.forEach(function(closeBtn) {
   closeBtn.addEventListener("click", closeModal);
 });
 
-// Click en dehors des modals pour fermer
 window.onclick = function(event) {
   if (event.target === modalGallery) {
     closeModal();
@@ -221,37 +231,74 @@ document.addEventListener("click", async function(event) {
 
 
 ///modal--add-photo
-document.addEventListener("click", function(event) {
-  if (event.target.classList.contains("add-picture")) {
-    const firstModal = document.querySelector(".modal-content");
-    const secondModal = document.querySelector(".modal-add-picture");
+// Sélectionner le bouton "Ajouter une photo"
+const addPictureButton = document.querySelector(".add-picture");
 
-    firstModal.style.display = "none"; 
-    secondModal.style.display = "block"; 
-  }
+// Ajouter un gestionnaire d'événements au bouton
+addPictureButton.addEventListener("click", function() {
+    // Contenu HTML de la deuxième page de modal
+    const deuxiemePageHTML = `
+      <span class="close">&times;</span>
+      <i class="fa-solid fa-arrow-left back-to-first-page"></i>
+        <h2>Ajouter photo</h2>
+        <div class="add-pic-card">
+          <div id="image-preview" class="image-preview"></div>
+            <i class="fa-regular fa-image"></i>
+            <label for="addPhotoInput" class="add-photo-label">+ Ajouter photo</label>
+            <input type="file" id="addPhotoInput" accept="image/*" class="add-photo-input">
+            <p> jpg, png : 4mo max </p>
+            <div class="pic-description">
+              <label for="titre">Titre</label>
+              <input type="text" id="titre" name="titre">
+              
+              <label for="categorie">Catégorie</label>
+              <select id="categorie" name="categorie">
+                <option value="categorie0"></option>
+                <option value="categorie1">Objets</option>
+                <option value="categorie2">Appartements</option>
+                <option value="categorie3">Hotels et restaurants</option>
+              </select>
+            </div>
+        </div>
+        <hr>
+        <input type="submit" value="Valider" class="valid-picture">
+    `;
+    const modalContent = modalGallery.querySelector(".modal-content");
+    
+    modalContent.innerHTML = deuxiemePageHTML;
 });
 
-document.addEventListener("click", function(event) {
-  if (event.target.classList.contains("fa-arrow-left")) {
-    console.log("Arrow left clicked");
+///prévisualiser l'image
+const addPhotoInput = document.getElementById("addPhotoInput");
+const imagePreview = document.getElementById("image-preview");
 
-    const firstModal = document.querySelector(".modal-gallery");
-    const secondModal = document.querySelector(".modal-add-picture");
+addPhotoInput.addEventListener("change", function(event) {
+    const selectedFile = event.target.files[0];
 
-    console.log("First modal:", firstModal);
-    console.log("Second modal:", secondModal);
+    if (selectedFile && (selectedFile.type === "image/jpeg" || selectedFile.type === "image/png")) {
+        const reader = new FileReader();
 
-    secondModal.style.display = "none"; 
-    firstModal.style.display = "block"; 
+        reader.onload = function(event) {
+            const imageDataURL = event.target.result;
 
-    console.log("First modal display:", firstModal.style.display);
-    console.log("Second modal display:", secondModal.style.display);
-  }
+            // Cacher les éléments existants
+            addPhotoInput.style.display = "none";
+
+            // Afficher l'image sélectionnée
+            const image = document.createElement("img");
+            image.src = imageDataURL;
+            imagePreview.appendChild(image);
+        };
+
+        reader.readAsDataURL(selectedFile);
+    }
 });
 
-
-
-
-
-
+///techniquement sert à passer à l'ancienne modale
+document.addEventListener("click", function(event) {
+  if (event.target.classList.contains("back-to-first-page")) {
+    const modalContent = modalGallery.querySelector(".modal-content");
+    modalContent.innerHTML = premierePageHTML; // Réinsérez le contenu de la première page
+  }
+});
 

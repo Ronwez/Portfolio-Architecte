@@ -212,6 +212,7 @@ input[type="submit"]{
 	text-align: center;
 	border-radius: 60px ;
 	cursor:pointer;
+	border:none;
 }
 input[type="submit"]:hover{
 	background-color: #0B2621;
@@ -356,15 +357,19 @@ figure .modif{
   /* Modal Content/Box */
   .modal-content {
 	background-color: #fefefe;
-	margin: 15% auto; 
-	padding: 20px 20px 50px 80px;
+	margin: 15% auto;
+	padding: 50px 50px 50px 50px;
 	border: 1px solid #888;
-	width: 50%; 
+	width: 50%;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	position: relative;
+	border-radius: 10px;
   }
   .modal-content h2{
 	margin-top:50px;
 	padding-bottom:30px;
-	left:-30px;
 	position: relative;
 	font-family:Work Sans;
 	color:black;
@@ -404,6 +409,9 @@ figure .modif{
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
+	position: absolute;
+	right: 25px;
+	top: 15px;
   }
   
   .close:hover,
@@ -417,6 +425,7 @@ figure .modif{
 	display: flex; 
 	flex-wrap: wrap;
 	gap: 20px;
+	justify-content: center;
   }
   
   .modal-image {
@@ -477,7 +486,9 @@ figure .modif{
 	text-align: center;
   }
   .fa-arrow-left{
-	float:left;
+	position: absolute;
+	top:15px;
+	left:25px;
 	font-size:20px;
 	color: #aaa;
   }
@@ -492,19 +503,38 @@ figure .modif{
 	align-items: center;
 	flex-direction: column;
 	width:80%;
-	height:170px;
 	justify-content: center;
-	margin-left:60px;
 	gap:20px;
-	padding:20px;
+	padding:30px;
+	border-radius: 3px;
   }
 
   .fa-image{
 	color:#B9D9EB;
 	font-size: 80px;
   }
+  .pic-description{
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	text-align: left;
+	width:100%;
+  }
+  #titre{
+	height: 50px;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  }
+  #categorie{
+	height: 50px;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	background-color: white;
+  }
 
-  .add-a-pic{
+  .add-photo-label{
 	font-family: 'Syne';
 	font-weight: 700;
 	color: #5072A7;
@@ -514,10 +544,20 @@ figure .modif{
 	border-radius: 60px ;
 	border:none;
 	cursor:pointer;
-	padding:10px;
+	padding:15px;
   }
-
+  .add-photo-input {
+    display: none;
+}
   .pic-titre{
 	display:flex;
 	justify-content: center;
+  }
+
+  .valid-picture{
+	display:flex;
+	justify-content: center;
+	height: 40px;
+	font-size: 1.2em;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
   }
