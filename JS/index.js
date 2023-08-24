@@ -86,13 +86,10 @@ async function ajouterGestionnairesFiltres() {
     console.log(err);
   }
 }
-
 ajouterGestionnairesFiltres();
 
 
-
 //Log-in MAJ home-page
-
 document.addEventListener("DOMContentLoaded", function() {
   const token = sessionStorage.getItem("token");
   if (token) {
@@ -110,87 +107,82 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
+
 //MODAL
 
-var modalGallery = document.getElementById("myModal");
-var firstModal = document.querySelector(".modal-gallery");
-var modalAddPicture = document.getElementById("myModal2");
+// Variable globale pour stocker les données de la galerie
+let galleryData = null;
+// Fonction pour charger les données de la galerie
+async function chargerDonneesGalerie() {
+  try {
+    const Apiworks = await fetch("http://localhost:5678/api/works");
+    galleryData = await Apiworks.json();
+  } catch (err) {
+    console.log(err);
+  }
+}
+// Appel pour charger les données de la galerie lorsque la page est chargée
+window.addEventListener("DOMContentLoaded", chargerDonneesGalerie);
 
-var premierePageHTML = ""; // Variable pour sauvegarder le contenu de la première page
+let galleryModal = document.getElementById("galleryModal");
+let addPictureModal = document.getElementById("addPhotoModal");
 
-// ouverture modal
-var btn = document.getElementById("connected3");
-
+let btn = document.getElementById("connected3");
 // affichage modal
-btn.onclick = async function() {
-  modalGallery.style.display = "block";
+btn.onclick = function() {
+  galleryModal.style.display = "block";
+    
+  const imageContainer = galleryModal.querySelector(".image-container");
+  imageContainer.innerHTML = ""; // Effacer le contenu précédent de la galerie
 
-  if (premierePageHTML === "") {
-    try {
-      const Apiworks = await fetch("http://localhost:5678/api/works");
-      response = await Apiworks.json();
-      const imageContainer = firstModal.querySelector(".image-container");
-      premierePageHTML = imageContainer.innerHTML; // Sauvegarder le contenu de la première page
-      imageContainer.innerHTML = ""; // Vider le contenu précédent
+  if (galleryData) {
+    for (let i = 0; i < galleryData.length; i++) {
+      const { imageUrl } = galleryData[i];
+      const imageHtml = `
+        <div class="item">
+          <i class="fa-solid fa-up-down-left-right"></i>
+          <i class="fa-solid fa-trash-can" data-index="${i}"></i>
+          <img class="modal-image" src="${imageUrl}">
+          <figcaption>Éditer</figcaption>
+        </div>
+      `;
 
-      for (let i = 0; i < response.length; i++) {
-        const { imageUrl } = response[i];
-
-        const imageHtml = `
-          <div class="item">
-            <i class="fa-solid fa-up-down-left-right"></i>
-            <i class="fa-solid fa-trash-can" data-index="${i}"></i>
-            <img class="modal-image" src="${imageUrl}">
-            <figcaption>Éditer</figcaption>
-          </div>
-        `;
-
-        imageContainer.insertAdjacentHTML("beforeend", imageHtml);
-      }
-    } catch (err) {
-      console.log(err);
+      imageContainer.insertAdjacentHTML("beforeend", imageHtml);
     }
-  } else {
-    // Restaurer le contenu de la première page
-    const imageContainer = firstModal.querySelector(".image-container");
-    imageContainer.innerHTML = premierePageHTML;
   }
 };
 
-// Restaurer le contenu de la première page lorsque la modal est fermée
-function closeModal() {
-  modalGallery.style.display = "none";
-  const imageContainer = firstModal.querySelector(".image-container");
-  imageContainer.innerHTML = premierePageHTML;
-}
+    //fermeture modal
+    function closeModal() {
+      galleryModal.style.display = "none";
+      addPictureModal.style.display = "none";
+    }
 
-// Gérer la fermeture des modals
-var closeBtns = document.querySelectorAll(".close");
-closeBtns.forEach(function(closeBtn) {
-  closeBtn.addEventListener("click", closeModal);
-});
-
-window.onclick = function(event) {
-  if (event.target === modalGallery) {
-    closeModal();
-  }
-  if (event.target === modalAddPicture) {
-    closeModal();
-  }
-}
+    const closeButtons = document.querySelectorAll(".close");
+    closeButtons.forEach(button => {
+      button.addEventListener("click", closeModal);
+    });
+    
+  window.addEventListener("click", function(event) {
+    if (event.target === galleryModal) {
+      closeModal();
+    }
+    if (event.target === addPictureModal) {
+      closeModal();
+    }
+  });
 
 //suppression d'image
-
 document.addEventListener("click", async function(event) {
   if (event.target.classList.contains("fa-trash-can")) {
     const index = event.target.getAttribute("data-index");
     if (index !== null) {
       console.log("Starting deletion process...");
 
-      const itemIdToDelete = response[index].id;
+      const itemIdToDelete = galleryData[index].id; 
       console.log("Item ID to delete:", itemIdToDelete);
 
-      const token = sessionStorage.getItem("token"); // Récupérer le token d'accès
+      const token = sessionStorage.getItem("token"); 
       console.log("Token:", token);
 
       const deleteUrl = `http://localhost:5678/api/works/${itemIdToDelete}`;
@@ -200,27 +192,21 @@ document.addEventListener("click", async function(event) {
         const deleteResponse = await fetch(deleteUrl, {
           method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${token}` // Inclure le token d'accès dans l'en-tête
+            "Authorization": `Bearer ${token}`
           }
         });
 
         console.log("Delete response:", deleteResponse);
 
-        if (deleteResponse.status === 200) { 
-          const deleteResult = await deleteResponse.json();
-          console.log("Delete result:", deleteResult);
+        if (deleteResponse.status === 204) { // Statut 204 indique succès 
+          // Supprimer l'élément du DOM après la suppression réussie côté serveur
+          const itemToDelete = event.target.parentElement;
+          itemToDelete.remove();
+          console.log("Item deleted successfully.");
 
-          if (deleteResult.status === "success") {
-            response.splice(index, 1);
-
-            const affichage_image = document.querySelector(".gallery");
-            affichage_image.innerHTML = ""; 
-            afficherImages(response); 
-          } else {
-            console.log("Erreur lors de la suppression côté serveur.");
-          }
+          galleryData.splice(index, 1);
         } else {
-          console.log("Erreur lors de la suppression côté client.");
+          console.log("Erreur lors de la suppression côté serveur.");
         }
       } catch (err) {
         console.log("Error:", err);
@@ -230,75 +216,146 @@ document.addEventListener("click", async function(event) {
 });
 
 
-///modal--add-photo
-// Sélectionner le bouton "Ajouter une photo"
+//Ouverture seconde modal
 const addPictureButton = document.querySelector(".add-picture");
-
-// Ajouter un gestionnaire d'événements au bouton
+const secondModal = document.querySelector(".add-picture-modal");
 addPictureButton.addEventListener("click", function() {
-    // Contenu HTML de la deuxième page de modal
-    const deuxiemePageHTML = `
-      <span class="close">&times;</span>
-      <i class="fa-solid fa-arrow-left back-to-first-page"></i>
-        <h2>Ajouter photo</h2>
-        <div class="add-pic-card">
-          <div id="image-preview" class="image-preview"></div>
-            <i class="fa-regular fa-image"></i>
-            <label for="addPhotoInput" class="add-photo-label">+ Ajouter photo</label>
-            <input type="file" id="addPhotoInput" accept="image/*" class="add-photo-input">
-            <p> jpg, png : 4mo max </p>
-            <div class="pic-description">
-              <label for="titre">Titre</label>
-              <input type="text" id="titre" name="titre">
-              
-              <label for="categorie">Catégorie</label>
-              <select id="categorie" name="categorie">
-                <option value="categorie0"></option>
-                <option value="categorie1">Objets</option>
-                <option value="categorie2">Appartements</option>
-                <option value="categorie3">Hotels et restaurants</option>
-              </select>
-            </div>
-        </div>
-        <hr>
-        <input type="submit" value="Valider" class="valid-picture">
-    `;
-    const modalContent = modalGallery.querySelector(".modal-content");
-    
-    modalContent.innerHTML = deuxiemePageHTML;
+  galleryModal.style.display = "none";
+  addPictureModal.style.display = "block";
 });
 
-///prévisualiser l'image
+//gestion flèche retour
+const backModal = document.querySelector(".back-to-first-page");
+backModal.addEventListener("click", function (){
+  addPictureModal.style.display = "none";
+  galleryModal.style.display = "block";
+});
+
+//Prévisualiser l'image dans la modal
 const addPhotoInput = document.getElementById("addPhotoInput");
 const imagePreview = document.getElementById("image-preview");
+const addPhotoLabel = document.querySelector(".add-photo-label");
+const addPhotoIcon = document.querySelector(".fa-regular.fa-image");
+const maxSizeInfo = document.querySelector(".maxSizeInfo");
 
 addPhotoInput.addEventListener("change", function(event) {
-    const selectedFile = event.target.files[0];
+  const selectedFile = event.target.files[0]; // Obtenir le fichier sélectionné
+  if (selectedFile) {
+    const imageURL = URL.createObjectURL(selectedFile);
 
-    if (selectedFile && (selectedFile.type === "image/jpeg" || selectedFile.type === "image/png")) {
-        const reader = new FileReader();
+    imagePreview.innerHTML = `<img src="${imageURL}" alt="Prévisualisation de l'image">`;
 
-        reader.onload = function(event) {
-            const imageDataURL = event.target.result;
-
-            // Cacher les éléments existants
-            addPhotoInput.style.display = "none";
-
-            // Afficher l'image sélectionnée
-            const image = document.createElement("img");
-            image.src = imageDataURL;
-            imagePreview.appendChild(image);
-        };
-
-        reader.readAsDataURL(selectedFile);
-    }
-});
-
-///techniquement sert à passer à l'ancienne modale
-document.addEventListener("click", function(event) {
-  if (event.target.classList.contains("back-to-first-page")) {
-    const modalContent = modalGallery.querySelector(".modal-content");
-    modalContent.innerHTML = premierePageHTML; // Réinsérez le contenu de la première page
+    addPhotoLabel.style.display = "none";
+    addPhotoIcon.style.display = "none";
+    maxSizeInfo.style.display = "none";
+  } else {
+    addPhotoLabel.style.display = "block";
+    addPhotoIcon.style.display = "block";
+    maxSizeInfo.style.display = "block";
+    imagePreview.innerHTML = ""; // Effacer la prévisualisation
   }
 });
 
+//message erreur formulaire incorrect
+const validPictureButton = document.querySelector(".valid-picture");
+const titreInput = document.getElementById("titre");
+const categorieSelect = document.getElementById("categorie");
+const fileInput = document.getElementById("addPhotoInput");
+
+const addModalForm = document.querySelector("#addPhotoModal");
+console.log(addModalForm);
+addModalForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  titreInput.style.borderColor = "";
+  categorieSelect.style.borderColor = "";
+
+  if (!titreInput.value || categorieSelect.value === "categorie0" || !fileInput.files[0]) {
+    alert("Formulaire incorrect. Veuillez remplir tous les champs.");
+    if (!titreInput.value) {
+      titreInput.style.border = "1px solid red";
+    }
+    if (categorieSelect.value === "categorie0") {
+      categorieSelect.style.border = "1px solid red";
+    }
+    return;
+  }
+
+  const title = titreInput.value;
+  const categoryId = categorieSelect.value;
+
+  const formData = new FormData();
+  formData.append("image", fileInput.files[0]);
+  formData.append("title", title);
+  formData.append("categoryId", categoryId);
+
+  formData.get("image")
+  console.log("hello");
+
+  const token = sessionStorage.getItem("token");
+
+  if (!token) {
+    console.log("Vous devez être connecté pour ajouter un élément à la galerie.");
+    return;
+  }
+
+  // Afficher le contenu de FormData dans la console
+  console.log("Données envoyées au serveur :", formData);
+
+  fetch("http://localhost:5678/api/works", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body: formData
+  })
+  /*
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.log(error))*/
+
+
+  //await ajouterElementGalerie(formData);
+});
+
+//Ajout d'une image dans la galerie
+async function ajouterElementGalerie(formData) {
+  const token = sessionStorage.getItem("token");
+
+  if (!token) {
+    console.log("Vous devez être connecté pour ajouter un élément à la galerie.");
+    return;
+  }
+
+  // Afficher le contenu de FormData dans la console
+  console.log("Données envoyées au serveur :", formData);
+
+  fetch("http://localhost:5678/api/works", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.log(error))
+  /*try {
+    const response = await fetch("http://localhost:5678/api/works", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (response.status === 201) {
+      console.log("Élément ajouté avec succès à la galerie !");
+      // Rechargez la galerie ici pour afficher le nouvel élément ajouté
+    } else {
+      console.log("Erreur lors de l'ajout de l'élément à la galerie.");
+    }
+  } catch (err) {
+    console.log("Erreur :", err);
+  }*/
+}

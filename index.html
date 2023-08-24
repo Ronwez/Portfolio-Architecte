@@ -52,18 +52,53 @@
 					<h2 id="projets">Mes Projets</h2>
 					<a id="connected3" class="modif"><i class="fa-regular fa-pen-to-square"></i> Modifier </a>
 				</div>
-					<div id="myModal" class="modal-gallery">
-						<div class="modal-content">
-							<span class="close">&times;</span>
-							<h2>Galerie photo</h2>
-							<div class="image-container"></div>
-							<div class="modal-input">
-								<hr>
-								<input type="submit" value="Ajouter une photo" class="add-picture">
-								<a class="delete">Supprimer la galerie</a>
-							</div>
+				<div id="galleryModal" class="modal-gallery">
+					<div class="modal-content">
+						<span class="close">&times;</span>
+						<h2>Galerie photo</h2>
+						<div class="image-container"></div>
+						<div class="modal-input">
+							<hr>
+							<input type="submit" value="Ajouter une photo" class="add-picture">
+							<a class="delete">Supprimer la galerie</a>
 						</div>
 					</div>
+				</div>
+
+
+				<form id="addPhotoModal" class="add-picture-modal">
+					<div class="modal-content">
+						<span class="close">&times;</span>
+						<i class="fa-solid fa-arrow-left back-to-first-page"></i>
+						<h2>Ajouter photo</h2>
+						<div class="add-photo-form">
+							<div id="image-preview"></div>
+							<i class="fa-regular fa-image"></i>
+							<label for="addPhotoInput" class="add-photo-label">+ Ajouter photo</label>
+							<input type="file" id="addPhotoInput" accept="image/*" class="add-photo-input">
+							<p class="maxSizeInfo">
+								jpg, png : 4mo max
+							</p>
+							<div class="pic-description">
+								<label for="titre">Titre</label>
+								<input type="text" id="titre" name="titre">
+								<label for="categorie">Catégorie</label>
+								<select id="categorie" name="categorie">
+									<option value="categorie0"></option>
+									<option value="categorie1">Objets</option>
+									<option value="categorie2">Appartements</option>
+									<option value="categorie3">Hotels et restaurants</option>
+								</select>
+							</div>
+						</div>
+						<hr>
+						<input type="submit" value="Valider" class="valid-picture">
+					</div>
+				</form>
+
+
+
+				
 				<div class="filtres">
 					<button class="btnfilall"> Tous</button>
 					<button class="btnfil1"> Objets</button>
