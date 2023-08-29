@@ -123,11 +123,10 @@ async function chargerDonneesGalerie() {
 }
 // Appel pour charger les données de la galerie lorsque la page est chargée
 window.addEventListener("DOMContentLoaded", chargerDonneesGalerie);
-
 let galleryModal = document.getElementById("galleryModal");
 let addPictureModal = document.getElementById("addPhotoModal");
-
 let btn = document.getElementById("connected3");
+
 // affichage modal
 btn.onclick = function() {
   galleryModal.style.display = "block";
@@ -156,6 +155,14 @@ btn.onclick = function() {
     function closeModal() {
       galleryModal.style.display = "none";
       addPictureModal.style.display = "none";
+      // Reset des valeurs form
+    titreInput.value = "";  // Reset titre
+    categorieSelect.value = "0"; // Reset categorie
+    addPhotoInput.value = ""; // Reset file input
+    imagePreview.innerHTML = ""; // Reset select image
+    addPhotoLabel.style.display = "block";
+    addPhotoIcon.style.display = "block";
+    maxSizeInfo.style.display = "block";
     }
 
     const closeButtons = document.querySelectorAll(".close");
@@ -178,10 +185,8 @@ document.addEventListener("click", async function(event) {
     const index = event.target.getAttribute("data-index");
     if (index !== null) {
       console.log("Starting deletion process...");
-
       const itemIdToDelete = galleryData[index].id; 
       console.log("Item ID to delete:", itemIdToDelete);
-
       const token = sessionStorage.getItem("token"); 
       console.log("Token:", token);
 
@@ -195,14 +200,18 @@ document.addEventListener("click", async function(event) {
             "Authorization": `Bearer ${token}`
           }
         });
-
         console.log("Delete response:", deleteResponse);
 
         if (deleteResponse.status === 204) { // Statut 204 indique succès 
-          // Supprimer l'élément du DOM après la suppression réussie côté serveur
+          // Supprimer l'élément de la modal
           const itemToDelete = event.target.parentElement;
           itemToDelete.remove();
           console.log("Item deleted successfully.");
+          //Supprimer l'élément de la galerie home-page
+          const homePageGalleryItems = document.querySelectorAll(".gallery .item");
+          if (homePageGalleryItems[index]) {
+            homePageGalleryItems[index].remove();
+          }
 
           galleryData.splice(index, 1);
         } else {
@@ -242,7 +251,6 @@ addPhotoInput.addEventListener("change", function(event) {
   const selectedFile = event.target.files[0]; // Obtenir le fichier sélectionné
   if (selectedFile) {
     const imageURL = URL.createObjectURL(selectedFile);
-
     imagePreview.innerHTML = `<img src="${imageURL}" alt="Prévisualisation de l'image">`;
 
     addPhotoLabel.style.display = "none";
@@ -256,8 +264,8 @@ addPhotoInput.addEventListener("change", function(event) {
   }
 });
 
-//message erreur formulaire incorrect
-const validPictureButton = document.querySelector(".valid-picture");
+//Envoie du formulaire + vérif formulaire rempli
+const validPictureButton = document.getElementById("valid-picture");
 const titreInput = document.getElementById("titre");
 const categorieSelect = document.getElementById("categorie");
 const fileInput = document.getElementById("addPhotoInput");
@@ -270,92 +278,104 @@ addModalForm.addEventListener("submit", async function(event) {
   titreInput.style.borderColor = "";
   categorieSelect.style.borderColor = "";
 
-  if (!titreInput.value || categorieSelect.value === "categorie0" || !fileInput.files[0]) {
+  if (!titreInput.value || categorieSelect.value === "0" || !fileInput.files[0]) {
     alert("Formulaire incorrect. Veuillez remplir tous les champs.");
     if (!titreInput.value) {
       titreInput.style.border = "1px solid red";
     }
-    if (categorieSelect.value === "categorie0") {
+    if (categorieSelect.value === "0") {
       categorieSelect.style.border = "1px solid red";
     }
     return;
   }
-
   const title = titreInput.value;
-  const categoryId = categorieSelect.value;
+  const category = categorieSelect.value;
 
+
+  //Fonction d'ajout de l'image
   const formData = new FormData();
   formData.append("image", fileInput.files[0]);
   formData.append("title", title);
-  formData.append("categoryId", categoryId);
-
-  formData.get("image")
-  console.log("hello");
-
+  formData.append("category", category);
+  formData.get("image");
   const token = sessionStorage.getItem("token");
-
+  
   if (!token) {
     console.log("Vous devez être connecté pour ajouter un élément à la galerie.");
-    return;
-  }
-
-  // Afficher le contenu de FormData dans la console
-  console.log("Données envoyées au serveur :", formData);
-
-  fetch("http://localhost:5678/api/works", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    },
-    body: formData
-  })
-  /*
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.log(error))*/
-
-
-  //await ajouterElementGalerie(formData);
-});
-
-//Ajout d'une image dans la galerie
-async function ajouterElementGalerie(formData) {
-  const token = sessionStorage.getItem("token");
-
-  if (!token) {
-    console.log("Vous devez être connecté pour ajouter un élément à la galerie.");
-    return;
-  }
-
-  // Afficher le contenu de FormData dans la console
-  console.log("Données envoyées au serveur :", formData);
-
-  fetch("http://localhost:5678/api/works", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    },
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.log(error))
-  /*try {
-    const response = await fetch("http://localhost:5678/api/works", {
+  } else {
+    // Afficher le contenu de FormData dans la console
+    console.log("Données envoyées au serveur :", formData);
+  
+    fetch("http://localhost:5678/api/works", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
       },
       body: formData
-    });
+    })
+    
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.log(error))
+    
+    closeModal();
 
-    if (response.status === 201) {
-      console.log("Élément ajouté avec succès à la galerie !");
-      // Rechargez la galerie ici pour afficher le nouvel élément ajouté
-    } else {
-      console.log("Erreur lors de l'ajout de l'élément à la galerie.");
+//afficher l'élément ajouté en temps-réel à la gallerie home-page
+    try {
+      // Récupérez la liste mise à jour d'images depuis le serveur
+      const updatedResponse = await fetch("http://localhost:5678/api/works");
+      const updatedData = await updatedResponse.json();
+
+      // Utilisez la constante itemHtml pour ajouter la nouvelle image
+      const homePageGallery = document.querySelector(".gallery");
+      homePageGallery.innerHTML = itemHtml;
+    } catch (err) {
+      console.log("Erreur lors de la mise à jour de la galerie de la page d'accueil :", err);
     }
+  }
+});
+
+//Définition d'un item pour l'ajout d'éléments
+let itemHtml = ''; //variables et non constante, car nouvel élément
+
+async function chargerDonneesGalerie() {
+  try {
+    const Apiworks = await fetch("http://localhost:5678/api/works");
+    galleryData = await Apiworks.json();
+    
+    // Créez le modèle HTML pour afficher les images dans la galerie
+    itemHtml = galleryData.map(({ title, imageUrl }) => `
+      <div class="item">
+        <img src="${imageUrl}">
+        <figcaption>${title}</figcaption>
+      </div>
+    `).join('');
   } catch (err) {
-    console.log("Erreur :", err);
-  }*/
+    console.log(err);
+  }
+};
+
+
+
+
+
+
+function updateButtonState() {
+  if (!titreInput.value || categorieSelect.value === "0" || !fileInput.files[0]) {
+    validPictureButton.style.backgroundColor="grey";
+    validPictureButton.style.color="black";
+    validPictureButton.style.cursor="not-allowed";
+  } else {
+    validPictureButton.style.backgroundColor="";
+    validPictureButton.style.color="";
+    validPictureButton.style.cursor="";
+  }
 }
+
+// Add event listeners to form fields to update button state on change
+titreInput.addEventListener("input", updateButtonState);
+categorieSelect.addEventListener("change", updateButtonState);
+fileInput.addEventListener("change", updateButtonState);
+
+// Initial button state on page load
+updateButtonState();
