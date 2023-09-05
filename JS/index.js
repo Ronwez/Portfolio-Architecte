@@ -297,7 +297,6 @@ addModalForm.addEventListener("submit", async function(event) {
   formData.append("image", fileInput.files[0]);
   formData.append("title", title);
   formData.append("category", category);
-  formData.get("image");
   const token = sessionStorage.getItem("token");
   
   if (!token) {
@@ -307,33 +306,84 @@ addModalForm.addEventListener("submit", async function(event) {
     console.log("Données envoyées au serveur :", formData);
   
     fetch("http://localhost:5678/api/works", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      },
-      body: formData
-    })
-    
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.log(error))
-    
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${token}`
+  },
+  body: formData
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // Les données de l'élément ajouté
+
+    // Après avoir ajouté l'élément avec succès, mettez à jour les galeries
+    mettreAJourGalerieAccueil();
+    mettreAJourModalGalerie();
+
     closeModal();
+  })
+  .catch(error => console.log(error));
 
-//afficher l'élément ajouté en temps-réel à la gallerie home-page
-    try {
-      // Récupérez la liste mise à jour d'images depuis le serveur
-      const updatedResponse = await fetch("http://localhost:5678/api/works");
-      const updatedData = await updatedResponse.json();
 
-      // Utilisez la constante itemHtml pour ajouter la nouvelle image
-      const homePageGallery = document.querySelector(".gallery");
-      homePageGallery.innerHTML = itemHtml;
-    } catch (err) {
-      console.log("Erreur lors de la mise à jour de la galerie de la page d'accueil :", err);
-    }
+
+
+
+// Fonction pour mettre à jour la galerie sur la page d'accueil
+async function mettreAJourGalerieAccueil() {
+  try {
+    const updatedResponse = await fetch("http://localhost:5678/api/works");
+    const updatedData = await updatedResponse.json();
+    const homePageGallery = document.querySelector(".gallery");
+
+    // Utilisez la constante updatedData pour mettre à jour la galerie
+    // Remplacez le contenu existant par les nouvelles images
+    const imagesHTML = updatedData.map(image => {
+      return `
+        <div class="item">
+          <img src="${image.imageUrl}" alt="${image.title}">
+          <figcaption>${image.title}</figcaption>
+        </div>
+      `;
+    });
+
+    homePageGallery.innerHTML = imagesHTML.join(''); // Remplace le contenu existant
+    console.log("Mise à jour de la galerie d'accueil terminée.");
+  } catch (err) {
+    console.log("Erreur lors de la mise à jour de la galerie de la page d'accueil :", err);
   }
-});
+}
+
+// Fonction pour mettre à jour la modal galerie
+async function mettreAJourModalGalerie() {
+  try {
+    const updatedResponse = await fetch("http://localhost:5678/api/works");
+    const updatedData = await updatedResponse.json();
+    console.log("Données mises à jour depuis l'API :", updatedData);
+    const modalGallery = document.querySelector(".image-container");
+
+    // Utilisez la constante updatedData pour mettre à jour la modal galerie
+    // Remplacez le contenu existant par les nouvelles images
+    const imagesHTML = updatedData.map(image => {
+      return `
+        <div class="item">
+          <i class="fa-solid fa-up-down-left-right"></i>
+          <i class="fa-solid fa-trash-can" data-index="${image.id}"></i>
+          <img class="modal-image" src="${image.imageUrl}">
+          <figcaption>Éditer</figcaption>
+        </div>
+      `;
+    });
+
+    modalGallery.innerHTML = imagesHTML.join(''); // Remplace le contenu existant
+
+    console.log("Mise à jour de la galerie modale terminée.");
+  } catch (err) {
+    console.log("Erreur lors de la mise à jour de la modal galerie :", err);
+  }
+}
+
+}});
+
 
 //Définition d'un item pour l'ajout d'éléments
 let itemHtml = ''; //variables et non constante, car nouvel élément
@@ -354,10 +404,6 @@ async function chargerDonneesGalerie() {
     console.log(err);
   }
 };
-
-
-
-
 
 
 function updateButtonState() {
