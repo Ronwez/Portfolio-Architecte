@@ -113,14 +113,28 @@ document.addEventListener("DOMContentLoaded", function() {
 // Variable globale pour stocker les données de la galerie
 let galleryData = null;
 // Fonction pour charger les données de la galerie
-async function chargerDonneesGalerie() {
-  try {
-    const Apiworks = await fetch("http://localhost:5678/api/works");
-    galleryData = await Apiworks.json();
-  } catch (err) {
-    console.log(err);
-  }
-}
+/*async function chargerDonneesGalerie() {
+  const data = null;
+
+  fetch("http://localhost:5678/api/works")
+  .then(response => response.json())
+  .then(apiData => {
+    console.log(apiData);
+    data = apiData
+  })
+  .catch(err => console.log(err))
+
+  return data;
+}*/
+
+
+const loadGalleryData = new Promise ((resolve, reject) => {
+  fetch("http://localhost:5678/api/works")
+  .then(response => response.json())
+  .then(apiData => resolve(apiData))
+  .catch(err => reject(err))
+});
+
 // Appel pour charger les données de la galerie lorsque la page est chargée
 window.addEventListener("DOMContentLoaded", chargerDonneesGalerie);
 let galleryModal = document.getElementById("galleryModal");
@@ -128,15 +142,15 @@ let addPictureModal = document.getElementById("addPhotoModal");
 let btn = document.getElementById("connected3");
 
 // affichage modal
-btn.onclick = function() {
+btn.onclick = async function() {
   galleryModal.style.display = "block";
     
   const imageContainer = galleryModal.querySelector(".image-container");
   imageContainer.innerHTML = ""; // Effacer le contenu précédent de la galerie
-
-  if (galleryData) {
+  loadGalleryData
+  .then(galleryData => {
     for (let i = 0; i < galleryData.length; i++) {
-      const { imageUrl } = galleryData[i];
+      const { imageUrl } = galleryData [i];
       const imageHtml = `
         <div class="item">
           <i class="fa-solid fa-up-down-left-right"></i>
@@ -145,10 +159,13 @@ btn.onclick = function() {
           <figcaption>Éditer</figcaption>
         </div>
       `;
-
       imageContainer.insertAdjacentHTML("beforeend", imageHtml);
     }
-  }
+    
+  })
+  .catch(err => console.log(err))
+
+
 };
 
     //fermeture modal
